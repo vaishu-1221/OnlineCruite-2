@@ -5,6 +5,9 @@ import { connectDB } from './lib/db.js';
 import cors from 'cors';
 import {functions, inngest} from './lib/inngest.js';
 import {serve} from 'inngest/express';
+import {clerkMiddleware} from '@clerk/express';
+import { protectRoute } from './middleware/ProtectRoute.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 const app =express();
 
@@ -13,15 +16,15 @@ const __dirname = path.resolve();
 //middleware
 app.use(express.json());
 app.use(cors({origin:ENV.CLIENT_URL,credentials:true})); //credential true means cookies can be sent
+app.use(clerkMiddleware());  // this will add req.auth object 
 
 app.use('/api/inngest',serve({client:inngest,functions}))
+app.use('/api/chat',chatRoutes)
 
 app.get('/health',(req,res)=>{
     res.status(200).json({msg:'success from api'});
 })
-app.get('/boom',(req,res)=>{
-    res.status(200).json({msg:'success from api boom'});
-})
+
 
 
 if(ENV.NODE_ENV==='production'){
