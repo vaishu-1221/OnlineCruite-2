@@ -6,7 +6,6 @@ import cors from 'cors';
 import {functions, inngest} from './lib/inngest.js';
 import {serve} from 'inngest/express';
 import {clerkMiddleware} from '@clerk/express';
-import { protectRoute } from './middleware/ProtectRoute.js';
 import chatRoutes from './routes/chatRoutes.js';
 
 const app =express();
