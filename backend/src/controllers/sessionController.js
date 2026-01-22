@@ -32,8 +32,7 @@ export async function createSession(req,res){
         });
 
         //chat messaging
-
-        chatClient.channel("messaging",callId,{
+        const channel=chatClient.channel("messaging",callId,{
             name:`${problem} Session`,
             created_by_id:clerkId,
             members:[clerkId]
@@ -165,6 +164,7 @@ export async function endSession(req,res){
 
         res.status(200).json({msg:'Session ended successfully',session});
     } catch (error) {
-        
+        console.log("Error in endSession controller:",error.message);
+        res.status(500).json({msg:'Server Error in ending session'});
     }
 }
