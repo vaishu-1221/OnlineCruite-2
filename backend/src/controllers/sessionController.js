@@ -112,12 +112,16 @@ export async function joinSession(req,res){
             return res.status(404).json({msg:'Session not found'});
         }
 
-        // if(session.status !=='active'){
-        //     return res.status(400).json({msg:'Cannot join a completed session'});
-        // }
+        if(session.status !=='active'){
+            return res.status(400).json({msg:'Cannot join a completed session'});
+        }
+
+        if(session.host.toString()===userId.toString()){
+            return res.status(400).json({msg:'Host cannot join as participant'});
+        }
 
         if(session.participants){
-            return res.status(400).json({msg:'Session already has a participant'});
+            return res.status(409).json({msg:'Session already has a participant'});
         }
 
         session.participants=userId;
