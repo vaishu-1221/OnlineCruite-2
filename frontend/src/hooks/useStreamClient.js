@@ -12,6 +12,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
   const [isInitializingCall, setIsInitializingCall] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     let videoCall = null;
     let chatClientInstance = null;
 
@@ -20,6 +21,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
       if (!isHost && !isParticipant) return;
       if (session.status === "completed") return;
 
+      setIsInitializingCall(true);
       try {
         const { token, userId, userName, userImage } = await sessionApi.getStreamToken();
 
@@ -32,10 +34,14 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
           token
         );
 
+        // setStreamClient(client);
+        if (cancelled) return;
         setStreamClient(client);
 
         videoCall = client.call("default", session.callId);
         await videoCall.join({ create: true });
+        //setCall(videoCall);
+        if (cancelled) return;
         setCall(videoCall);
 
         const apiKey = import.meta.env.VITE_STREAM_API_KEY;
@@ -49,16 +55,20 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
           },
           token
         );
+        //setChatClient(chatClientInstance);
+        if (cancelled) return;
         setChatClient(chatClientInstance);
-
         const chatChannel = chatClientInstance.channel("messaging", session.callId);
         await chatChannel.watch();
+        //setChannel(chatChannel);
+        if (cancelled) return;
         setChannel(chatChannel);
       } catch (error) {
         toast.error("Failed to join video call");
         console.error("Error init call", error);
       } finally {
-        setIsInitializingCall(false);
+        //setIsInitializingCall(false);
+        if (!cancelled) setIsInitializingCall(false);
       }
     };
 
@@ -66,6 +76,7 @@ function useStreamClient(session, loadingSession, isHost, isParticipant) {
 
     // cleanup - performance reasons
     return () => {
+      cancelled = true;
       // iife
       (async () => {
         try {

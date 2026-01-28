@@ -2,7 +2,25 @@ import { Code2, Clock, Users, Trophy, Loader } from "lucide-react";
 import { getDifficultyBadgeClass } from "../lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
-function RecentSessions({ sessions, isLoading }) {
+function RecentSessions({ sessions = [], isLoading }) {
+
+  // ✅ Safe date formatter (prevents RangeError)
+  const timeAgo = (date) => {
+    if (!date) return "Just now";
+
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) return "Just now";
+
+    return formatDistanceToNow(parsed, { addSuffix: true });
+  };
+
+  const safeDate = (date) => {
+    if (!date) return "";
+    const parsed = new Date(date);
+    if (isNaN(parsed.getTime())) return "";
+    return parsed.toLocaleDateString();
+  };
+
   return (
     <div className="card bg-base-100 border-2 border-accent/20 hover:border-accent/30 mt-8">
       <div className="card-body">
@@ -14,11 +32,13 @@ function RecentSessions({ sessions, isLoading }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
           {isLoading ? (
             <div className="col-span-full flex items-center justify-center py-20">
               <Loader className="w-10 h-10 animate-spin text-primary" />
             </div>
           ) : sessions.length > 0 ? (
+
             sessions.map((session) => (
               <div
                 key={session._id}
@@ -38,6 +58,7 @@ function RecentSessions({ sessions, isLoading }) {
                 )}
 
                 <div className="card-body p-5">
+
                   <div className="flex items-start gap-3 mb-4">
                     <div
                       className={`w-12 h-12 rounded-xl flex items-center justify-center ${
@@ -48,10 +69,15 @@ function RecentSessions({ sessions, isLoading }) {
                     >
                       <Code2 className="w-6 h-6 text-white" />
                     </div>
+
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-base mb-1 truncate">{session.problem}</h3>
+                      <h3 className="font-bold text-base mb-1 truncate">
+                        {session.problem}
+                      </h3>
                       <span
-                        className={`badge badge-sm ${getDifficultyBadgeClass(session.difficulty)}`}
+                        className={`badge badge-sm ${getDifficultyBadgeClass(
+                          session.difficulty
+                        )}`}
                       >
                         {session.difficulty}
                       </span>
@@ -61,12 +87,9 @@ function RecentSessions({ sessions, isLoading }) {
                   <div className="space-y-2 text-sm opacity-80 mb-4">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4" />
-                      <span>
-                        {formatDistanceToNow(new Date(session.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
+                      <span>{timeAgo(session.createdAt)}</span>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       <span>
@@ -77,14 +100,18 @@ function RecentSessions({ sessions, isLoading }) {
                   </div>
 
                   <div className="flex items-center justify-between pt-3 border-t border-base-300">
-                    <span className="text-xs font-semibold opacity-80 uppercase">Completed</span>
+                    <span className="text-xs font-semibold opacity-80 uppercase">
+                      Completed
+                    </span>
                     <span className="text-xs opacity-40">
-                      {new Date(session.updatedAt).toLocaleDateString()}
+                      {safeDate(session.updatedAt)}
                     </span>
                   </div>
+
                 </div>
               </div>
             ))
+
           ) : (
             <div className="col-span-full text-center py-16">
               <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-accent/20 to-secondary/20 rounded-3xl flex items-center justify-center">
@@ -94,6 +121,7 @@ function RecentSessions({ sessions, isLoading }) {
               <p className="text-sm opacity-50">Start your coding journey today!</p>
             </div>
           )}
+
         </div>
       </div>
     </div>
