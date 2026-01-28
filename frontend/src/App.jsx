@@ -1,41 +1,33 @@
-import {SignedIn, SignedOut, SignInButton, SignOutButton, UserButton, useUser} from '@clerk/clerk-react';
-import { Navigate, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/HomePage';
+import { useUser } from "@clerk/clerk-react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import HomePage from "./pages/HomePage";
 
-import ProblemPage from './pages/ProblemPage';
-import { Toaster } from 'react-hot-toast';
-import DashboardPage from './pages/DashboardPage';
+import { Toaster } from "react-hot-toast";
+import DashboardPage from "./pages/DashboardPage";
+import ProblemPage from "./pages/ProblemDetailPage";
+import ProblemsPage from "./pages/ProblemPage";
+import SessionPage from "./pages/SessionPage";
 
 function App() {
-  const {isSignedIn,isLoaded}=useUser();
+  const { isSignedIn, isLoaded } = useUser();
 
-  if(!isLoaded) return null;
+  // this will get rid of the flickering effect
+  if (!isLoaded) return null;
+
   return (
     <>
-    <Routes>
-        
+      <Routes>
+        <Route path="/" element={!isSignedIn ? <HomePage /> : <Navigate to={"/dashboard"} />} />
+        <Route path="/dashboard" element={isSignedIn ? <DashboardPage /> : <Navigate to={"/"} />} />
 
-        <Route path='/' element={!isSignedIn ? <HomePage/> : <Navigate to={"/dashboard"} />}/>
-        <Route path='/dashboard' element={isSignedIn ? <DashboardPage/>:<Navigate to={"/"} /> }/>
-        <Route path='/problems' element={isSignedIn ? <ProblemPage/>:<Navigate to={"/"} /> }/>
-  
-      {/* <SignedOut>
-        <SignInButton mode='modal'>
-          <button>
-            Sign Up please
-          </button>
-        </SignInButton>
-      </SignedOut>
+        <Route path="/problems" element={isSignedIn ? <ProblemsPage /> : <Navigate to={"/"} />} />
+        <Route path="/problem/:id" element={isSignedIn ? <ProblemPage /> : <Navigate to={"/"} />} />
+        <Route path="/session/:id" element={isSignedIn ? <SessionPage /> : <Navigate to={"/"} />} />
+      </Routes>
 
-      <SignedIn>
-        <SignOutButton mode='modal'/>
-      </SignedIn>
-
-      <UserButton/> */}
-    </Routes>
-    <Toaster/>
+      <Toaster toastOptions={{ duration: 3000 }} />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -15,7 +15,8 @@ const __dirname = path.resolve();
 
 //middleware
 app.use(express.json());
-app.use(cors({origin:ENV.CLIENT_URL,credentials:true})); //credential true means cookies can be sent
+app.use(cors({ origin: true, credentials: true }));
+ //credential true means cookies can be sent
 app.use(clerkMiddleware());  // this will add req.auth object 
 
 app.use('/api/inngest',serve({client:inngest,functions}))
