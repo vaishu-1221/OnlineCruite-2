@@ -1,35 +1,3 @@
-// import {StreamChat} from 'stream-chat';
-// import { ENV } from './env.js';
-// import {StreamClient} from '@stream-io/node-sdk';
-
-// const apiKey=ENV.STREAM_API_KEY;
-// const apiSecret=ENV.STREAM_API_SECRET;
-
-// if(!apiKey || !apiSecret){
-//     console.log('stream api key or secret is missing')
-// }
-
-// export const chatClient=StreamChat.getInstance(apiKey,apiSecret);
-
-// export const streamClient=new StreamClient(apiKey,apiSecret);
-
-// export const upsertStreamUser=async(userData)=>{
-//             try{
-//                 await chatClient.upsertUsers([userData]);
-//                 return userData;
-//             }catch(error){
-//                 console.error("Error upserting user to Stream:",error);
-//             }
-// }
-
-// export const deleteStreamUser=async(userId)=>{
-//             try{
-//                 await chatClient.deleteUser(userId);
-//                 console.log("Stream user deleted successfully",userId);
-//             }catch(error){
-//                 console.error("Error deleting user from Stream:",error);
-//             }
-// }
 import { StreamChat } from "stream-chat";
 import { ENV } from "./env.js";
 import { StreamClient } from "@stream-io/node-sdk";
@@ -41,11 +9,16 @@ if (!apiKey || !apiSecret) {
   console.error("Stream API key or secret is missing!");
 }
 
-// Backend chat client with API secret (required for createToken)
-export const chatClient = new StreamChat(apiKey, apiSecret);
+// ⏱ increase timeout to avoid 3s crash
+const streamOptions = {
+  timeout: 15000, // 15 seconds (safe for cloud/free tiers)
+};
 
-// Stream Node SDK client for advanced server-side actions
-export const streamClient = new StreamClient(apiKey, apiSecret);
+// Chat client (used for tokens + users)
+export const chatClient = new StreamChat(apiKey, apiSecret, streamOptions);
+
+// Node SDK client (server-side actions)
+export const streamClient = new StreamClient(apiKey, apiSecret, streamOptions);
 
 // Upsert a user into Stream
 export const upsertStreamUser = async (userData) => {
@@ -54,6 +27,7 @@ export const upsertStreamUser = async (userData) => {
     return userData;
   } catch (error) {
     console.error("Error upserting user to Stream:", error);
+    throw error;
   }
 };
 
@@ -64,5 +38,6 @@ export const deleteStreamUser = async (userId) => {
     console.log("Stream user deleted successfully:", userId);
   } catch (error) {
     console.error("Error deleting user from Stream:", error);
+    throw error;
   }
 };
